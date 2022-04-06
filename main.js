@@ -1,4 +1,4 @@
-import {easyFire} from './firebase.js'
+import {easyFire} from 'https://cdn.jsdelivr.net/gh/DocteurSEO/easyfire@master/firebase.js'
 
 const firebaseConfig = {
     apiKey: "AIzaSyCEdemPQN_mTR607XNl-xyXcUpdgMnTB_Q",
@@ -9,6 +9,7 @@ const firebaseConfig = {
     appId: "1:576198271387:web:73a5c94a418cf72208413e"
   };
 
-  const {login, createUser, saveContent} = easyFire(firebaseConfig)
+  const {saveContent} = easyFire(firebaseConfig)
 
-  saveContent('formation', {name:'intro SEO', prix : '0.5€'})
+
+  l saveContent({name:'salut'})

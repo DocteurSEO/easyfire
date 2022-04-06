@@ -69,13 +69,116 @@ async function saveContent(nameCollection,content){
     
     }
     
-    
+
+ 
+/**
+ * The function isLogin(url) is a function that takes a url as an argument. 
+ * It then calls the onAuthStateChanged function, which is a function that takes a
+ * function as an argument. 
+ * The function passed to onAuthStateChanged is a callback function that is called
+ * when the user is logged in or out. 
+ * If the user is logged in, the function will return the user's uid. 
+ * If the user is logged out, the function will redirect the user to the url passed
+ * as an argument to the isLogin function
+ * @param {string} url - The URL to redirect to when the user is not signed in.
+ */
+ function isLogin(url){
+       
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          // User is signed in, see docs for a list of available properties
+          // https://firebase.google.com/docs/reference/js/firebase.User
+          const uid = user.uid;
+          console.log(uid)
+          // ...
+        } else {
+          // User is signed out
+          // ...
+          console.log('voleur ! ')
+          window.location.href = url
+        }
+      });
+      
+      }
+       
+/**
+ * This function takes in a collection name and returns a list of articles
+ * @param {string} nameCollection - The name of the collection you want to query.
+ * @returns An array of objects. Each object has an id and data property. The data
+ * property is an object with the data for the article.
+ */
+ async function loadContent(nameCollection){
+          const querySnapshot = await getDocs(collection(db, nameCollection));
+          const articles = []
+          querySnapshot.forEach((doc) => {
+            // doc.data() is never undefined for query doc snapshots
+            const article= {
+                id:  doc.id, 
+                data : doc.data(), 
+               
+            }
+            articles.push(article)
+            
+            
+      
+      
+          });
+      
+          return  articles
+      }
+      
+      
+      
+/**
+ * Given a collection name and an id, return the document data
+ * @param {string} nameCollection - The name of the collection you want to query.
+ * @param {string} id - The document ID.
+ * @returns The document data.
+ */
+async function loadOneDoc(nameCollection,id){
+      
+      
+      const docRef = doc(db, nameCollection, id);
+      const docSnap = await getDoc(docRef);
+      
+      if (docSnap.exists()) {
+        return docSnap.data()
+      } else {
+        // doc.data() will be undefined in this case
+        return "No such document!"
+      }
+      }
+      
+  async function deleteContent (nameCollection,id){
+        await deleteDoc(doc(db, nameCollection, id));
+      }
+      
+  async function updateContent (nameCollection,id, content){
+      
+        await setDoc(doc(db, nameCollection, id),content);
+        
+      
+      }
+       
+
+
+
+
+
     
 
     return {
         login,
         createUser, 
-        saveContent
+        saveContent, 
+        deleteContent, 
+        loadOneDoc, 
+        loadContent, 
+        updateContent, 
+        isLogin
+
+
+
     }
 
 }
