@@ -1,8 +1,38 @@
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword , onAuthStateChanged,createUserWithEmailAndPassword   } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
-import { addDoc, collection, getFirestore, getDocs, getDoc , doc, deleteDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js"; 
+import {updateDoc ,addDoc, collection, getFirestore, getDocs, getDoc , doc, deleteDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js"; 
 
+
+
+function validateEmail(email) 
+    {
+        var re = /\S+@\S+\.\S+/;
+        return re.test(email);
+    }
+
+
+function validatePassword(password){
+ const pass = String(password).length
+ if(pass < 6){
+   return false
+ }
+  return true 
+}  
+
+
+ 
+
+function logAndReturnError(text){
+  console.log(text)
+  return text
+}
+
+
+
+ 
+ 
+ 
 export function easyFire (firebaseConfig){
     const app = initializeApp(firebaseConfig);
     const auth = getAuth();
@@ -10,23 +40,37 @@ export function easyFire (firebaseConfig){
 
 
 /**
- * It logs in a user with an email and password.
+ * logs in a user with an email and password.
  * @param {string} email - The email address of the user.
  * @param {string} password - The password of the user.
  */
 function login (email, password) {
+
+  if(!validateEmail(email)){
+    console.log('Please enter a valid email !')
+    return 'Please enter a valid email ! '
+  }
+
+  if(!validatePassword(password)){
+    console.log('invalid password must be at least 6 characters')
+    return ' invalid password must be at least 6 characters'
+  }
+   
+  
 signInWithEmailAndPassword(auth, email, password)
   .then((userCredential) => {
     // Signed in 
     const user = userCredential.user;
     console.log('firebase ok : ',user.uid)
-    
+    return user.uid
     // ...
   })
   .catch((error) => {
     const errorCode = error.code;
     const errorMessage = error.message;
-    console.log('error')
+
+    console.log('Error Firebase : ', errorCode)
+    return 'Error Firebase : ', errorCode
   });
 
 
@@ -38,19 +82,30 @@ signInWithEmailAndPassword(auth, email, password)
  * @param  {string} password - The password for the new user.
  */
 function createUser (email, password){
+  if(!validateEmail(email)){
+    console.log('Please enter a valid email !')
+    return 'Please enter a valid email ! '
+  }
 
+  if(!validatePassword(password)){
+    console.log('invalid password must be at least 6 characters')
+    return ' invalid password must be at least 6 characters'
+  }
     createUserWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
       // Signed in 
       const user = userCredential.user;
-      console.log('new user : ', user.uid)
+     
+      console.log('new user UID : ', user.uid)
+      return user.uid
       // ...
     })
     .catch((error) => {
       const errorCode = error.code;
       const errorMessage = error.message;
       // ..
-      console.log('ooops ! ')
+      console.log(errorCode)
+      return errorCode
     });
 
 }
@@ -59,13 +114,28 @@ function createUser (email, password){
 
 
 
-async function saveContent(nameCollection,content){
+/**
+ * This function saves the content in the Firestore database.
+ * @param {string} nameCollection - The name of the collection you want to save 
+ * @param {Object}[content] - The object you want to save.
+ * @returns {string} The id of the document that was created.
+ */
+async function saveContent(nameCollection,content={}){
 
-  
-        const docRef = await addDoc(collection(db, nameCollection),content);
+  if (!nameCollection) {
+   console.log("invalid name collection")
+   return "invalid name collection"
+  }
+
+  if(typeof content != 'object'){
+    console.log('Please enter an object !')
+    return 'Please enter an object !'
+  }
+  const collectionName = String(nameCollection)
+
+        const docRef = await addDoc(collection(db, collectionName),content);
           console.log("Document written with ID: ", docRef.id)
-    
-          localStorage.setItem( docRef.id, JSON.stringify(content))
+          return docRef.id 
     
     }
     
@@ -89,7 +159,7 @@ async function saveContent(nameCollection,content){
           // User is signed in, see docs for a list of available properties
           // https://firebase.google.com/docs/reference/js/firebase.User
           const uid = user.uid;
-          console.log(uid)
+          return uid
           // ...
         } else {
           // User is signed out
@@ -104,7 +174,7 @@ async function saveContent(nameCollection,content){
 /**
  * This function takes in a collection name and returns a list of articles
  * @param {string} nameCollection - The name of the collection you want to query.
- * @returns An array of objects. Each object has an id and data property. The data
+ * @returns {{Array.<{id: string, data: Array}>}} An array of objects. Each object has an id and data property. The data
  * property is an object with the data for the article.
  */
  async function loadContent(nameCollection){
@@ -133,7 +203,7 @@ async function saveContent(nameCollection,content){
  * Given a collection name and an id, return the document data
  * @param {string} nameCollection - The name of the collection you want to query.
  * @param {string} id - The document ID.
- * @returns The document data.
+ * @returns {Object}The document data.
  */
 async function loadOneDoc(nameCollection,id){
       
@@ -149,13 +219,24 @@ async function loadOneDoc(nameCollection,id){
       }
       }
       
+ /**
+  * Delete a document from a collection
+  * @param {string} nameCollection - The name of the collection you want to delete from.
+  * @param {string} id - The id of the document you want to delete.
+  */
   async function deleteContent (nameCollection,id){
         await deleteDoc(doc(db, nameCollection, id));
       }
       
+ /**
+  * It updates the content of a document in a collection.
+  * @param {string}  nameCollection - the name of the collection you want to update
+  * @param {string}  id - The id of the document you want to update.
+  * @param {Object} content - The content of the document you want to update.
+  */
   async function updateContent (nameCollection,id, content){
       
-        await setDoc(doc(db, nameCollection, id),content);
+        await updateDoc(doc(db, nameCollection, id),content);
         
       
       }
@@ -182,116 +263,3 @@ async function loadOneDoc(nameCollection,id){
     }
 
 }
-// Initialize Firebase
-
-// const db = getFirestore(app);
-
-
-
-
-
-// const auth = getAuth();
-
-// export function login (email, password) {
-// signInWithEmailAndPassword(auth, email, password)
-//   .then((userCredential) => {
-//     // Signed in 
-//     const user = userCredential.user;
-//     console.log(user.uid)
-//     window.location.href='../back-office/admin.html'
-    
-//     // ...
-//   })
-//   .catch((error) => {
-//     const errorCode = error.code;
-//     const errorMessage = error.message;
-//     console.log('error')
-//   });
-
-
-// }
-
-
-
-
- 
-
-// export function isLogin(){
- 
-// onAuthStateChanged(auth, (user) => {
-//   if (user) {
-//     // User is signed in, see docs for a list of available properties
-//     // https://firebase.google.com/docs/reference/js/firebase.User
-//     const uid = user.uid;
-//     console.log(uid)
-//     // ...
-//   } else {
-//     // User is signed out
-//     // ...
-//     console.log('voleur ! ')
-//     window.location.href = './login.html'
-//   }
-// });
-
-// }
- 
-
-// export async function saveContent(content){
-
-
-
-
-//     const docRef = await addDoc(collection(db, "articles"),content);
-//       console.log("Document written with ID: ", docRef.id)
-
-//       localStorage.setItem( docRef.id, JSON.stringify(content))
-
-// }
-
-// export async function loadContent(){
-//     const querySnapshot = await getDocs(collection(db, "articles"));
-//     const articles = []
-//     querySnapshot.forEach((doc) => {
-//       // doc.data() is never undefined for query doc snapshots
-//       const article= {
-//           id:  doc.id, 
-//           data : doc.data(), 
-         
-//       }
-//       articles.push(article)
-      
-      
-
-
-//     });
-
-//     return  articles
-// }
-
-
-
-// export async function loadOneDoc(id){
-
-
-//   const docRef = doc(db, "articles", id);
-// const docSnap = await getDoc(docRef);
-
-// if (docSnap.exists()) {
-//   return docSnap.data()
-// } else {
-//   // doc.data() will be undefined in this case
-//   return "No such document!"
-// }
-// }
-
-// export async function deleteContent (id){
-//   await deleteDoc(doc(db, "articles", id));
-// }
-
-// export async function updateContent (id, content){
-
-//   await setDoc(doc(db, "articles", id),content);
-  
-
-// }
- 

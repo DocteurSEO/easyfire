@@ -1,4 +1,5 @@
-import {easyFire} from 'https://cdn.jsdelivr.net/gh/DocteurSEO/easyfire@master/firebase.js'
+//@ts-check
+import {easyFire} from './easyfirev0.5.js'
 
 const firebaseConfig = {
     apiKey: "AIzaSyCEdemPQN_mTR607XNl-xyXcUpdgMnTB_Q",
@@ -9,7 +10,15 @@ const firebaseConfig = {
     appId: "1:576198271387:web:73a5c94a418cf72208413e"
   };
 
-  const {saveContent} = easyFire(firebaseConfig)
+  const {login,saveContent, updateContent, isLogin, loadContent, loadOneDoc,deleteContent  } = easyFire(firebaseConfig)
+
+  //saveContent('Formation', {name: 'Formation', price:'15155€'})
+
+  //updateContent('Formation','xzoBYhvUxuD1ttJxKyEO', {price: '150€'})
+
+  //isLogin('https:google.com')
 
 
-  l saveContent({name:'salut'})
+  
+  //deleteContent ('Formation', 'V7gQB312LTMPjyA8JAoN')
+ 
