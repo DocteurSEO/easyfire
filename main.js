@@ -18,11 +18,23 @@ const { loadContent , getToken} = easyFire (firebaseConfig)
 async function displayContent (){
  const data = await loadContent('articles')
  
- const li = createHTML('li' )
+ 
 
- li.addTo('ul')
- li.html(`<h3>${data[0].data.title}</h3> <p>${data[0].data.content}</p>`)
- li.id(data[0].id)
+ for (let article of data){
+  const li = createHTML('li' )
+  li.addTo('ul')
+  li.html(`<a href='./article.html?id=${article.id}'>
+  <h3>${article.data.title}</h3>
+  
+  <p>${article.data.content}</p>
+  </a>
+  `
+
+  )
+   
+ }
+
+
   
 }
  
