@@ -1,6 +1,6 @@
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword , onAuthStateChanged,createUserWithEmailAndPassword   } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+import {getIdToken ,getAuth, signInWithEmailAndPassword , onAuthStateChanged,createUserWithEmailAndPassword   } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
 import {updateDoc ,addDoc, collection, getFirestore, getDocs, getDoc , doc, deleteDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js"; 
 
 
@@ -37,6 +37,7 @@ export function easyFire (firebaseConfig){
     const app = initializeApp(firebaseConfig);
     const auth = getAuth();
     const db = getFirestore(app);
+    
 
 
 /**
@@ -57,11 +58,12 @@ function login (email, password) {
   }
    
   
-signInWithEmailAndPassword(auth, email, password)
+return signInWithEmailAndPassword(auth, email, password)
   .then((userCredential) => {
     // Signed in 
     const user = userCredential.user;
     console.log('firebase ok : ',user.uid)
+    
     return user.uid
     // ...
   })
@@ -152,14 +154,17 @@ async function saveContent(nameCollection,content={}){
  * as an argument to the isLogin function
  * @param {string} url - The URL to redirect to when the user is not signed in.
  */
- function isLogin(url){
+ async function isLogin(url){
        
-      onAuthStateChanged(auth, (user) => {
+      onAuthStateChanged(auth, async (user) => {
         if (user) {
           // User is signed in, see docs for a list of available properties
           // https://firebase.google.com/docs/reference/js/firebase.User
           const uid = user.uid;
-          return uid
+          
+
+          
+          return  uid 
           // ...
         } else {
           // User is signed out
@@ -242,9 +247,23 @@ async function loadOneDoc(nameCollection,id){
       }
        
 
+/* get firebase user Token */
+  const getToken = new Promise((resolve, reject) => {
+   
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const { currentUser } = auth
+        const token = await getIdToken(currentUser, true)
+      
+        resolve(token) 
+      }})
+   
+  });
 
 
 
+ 
+ 
 
     
 
@@ -256,7 +275,8 @@ async function loadOneDoc(nameCollection,id){
         loadOneDoc, 
         loadContent, 
         updateContent, 
-        isLogin
+        isLogin, 
+        getToken
 
 
 
