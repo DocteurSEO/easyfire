@@ -25,6 +25,5 @@ async function displayContent (){
  li.id(data[0].id)
   
 }
-
-
+ 
 displayContent ()

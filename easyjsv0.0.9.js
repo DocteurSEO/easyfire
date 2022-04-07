@@ -6,22 +6,50 @@ export function insertHTML(selector, html) {
     getHTML(selector).innerHTML = html
 }
 
-export function createHTML(selector, html, className){
-    const domElement = document.createElement(selector)
-    domElement.innerHTML = html
-    domElement.className = className
+export function createHTML(selector,options={}){
+ 
+
+    const element = document.createElement(selector)
+    Object.entries(options).forEach(([key, value]) => {
+      if (key === "class") {
+        element.className = value
+        return
+      }
+  
+      if (key === "dataset") {
+        Object.entries(value).forEach(([dataKey, dataValue]) => {
+          element.dataset[dataKey] = dataValue
+        })
+        return
+      }
+  
+      if (key === "text") {
+        element.textContent = value
+        return
+      }
+  
+      element.setAttribute(key, value)
+    })
+     
 
     return {
-        dom:domElement,
-        html : (html) => domElement.innerHTML = html,
-        id : (id) => domElement.id = id,
-        append  : (child)=> domElement.appendChild(child),
-        addTo :(selector) => getHTML(selector).appendChild(domElement),
-        before : (selector) => { getHTML('body').insertBefore(domElement, getHTML(selector))}
+        element,
+        html : (html) => element.innerHTML = html,
+        id : (id) => element.id = id,
+        append  : (child)=> element.appendChild(child),
+        addTo :(selector) => getHTML(selector).appendChild(element),
+        before : (selector) => { getHTML('body').insertBefore(element, getHTML(selector))}
     }
 
 
 }
+
+
+
+ 
+
+
+
 
 export function addClick(selector, fn) {
 
