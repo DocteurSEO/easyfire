@@ -93,7 +93,7 @@ function createUser (email, password){
     console.log('invalid password must be at least 6 characters')
     return ' invalid password must be at least 6 characters'
   }
-    createUserWithEmailAndPassword(auth, email, password)
+   return createUserWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
       // Signed in 
       const user = userCredential.user;
