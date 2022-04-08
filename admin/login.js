@@ -1,5 +1,5 @@
-import { easyFire } from "../easyfirev0.5.js";
-import {getHTML, addClick, redictUser} from "../easyjsv0.0.9.js";
+import { easyFire } from "../easyfirev0.5.1.js";
+import {getHTML, addClick, redictUser, } from "../easyjsv0.0.9.js";
 const firebaseConfig = {
     apiKey: "AIzaSyCEdemPQN_mTR607XNl-xyXcUpdgMnTB_Q",
     authDomain: "nouveau-62b29.firebaseapp.com",
@@ -9,7 +9,7 @@ const firebaseConfig = {
     appId: "1:576198271387:web:73a5c94a418cf72208413e"
   };
 
-const {login} = easyFire(firebaseConfig)
+const {login, getToken} = easyFire(firebaseConfig)
    
   const email = getHTML('#email')
   const password = getHTML('#password')
@@ -19,7 +19,47 @@ const {login} = easyFire(firebaseConfig)
     const uid = await login(email.value, password.value)
 
      if(uid){
-        redictUser('./admin.html')
+
+      getToken.then(function(token){
+        console.log(token)
+      
+        
+        let myHeaders = new Headers();
+        myHeaders.append("authorization",token); 
+        myHeaders.append("Content-Type", "application/json");
+        
+        let raw = JSON.stringify({
+          "name": "fin",
+          "price": "71500",
+          "level": " super service"
+        });
+        
+        var requestOptions = {
+          method: 'POST',
+          headers: myHeaders,
+          body: raw
+        };
+        
+        fetch("http://localhost:3002/formations", requestOptions)
+          .then(response => response.text())
+          .then(result => console.log(result))
+          .catch(error => console.log('error', error))
+
+
+
+
+
+
+
+
+      })
+        //redictUser('./admin.html')
      }
  })
+
+
+
+
+
+
  

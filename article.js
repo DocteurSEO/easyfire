@@ -1,4 +1,4 @@
-import { easyFire } from "./easyfirev0.5.js";
+import { easyFire } from "./easyfirev0.5.1.js";
 import { getParam, getHTML, createHTML } from "./easyjsv0.0.9.js"
 
 const firebaseConfig = {
